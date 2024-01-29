@@ -1,0 +1,73 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- master
+
+variables:
+
+  vmImageName: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: Build, Test and Publish
+    jobs:
+      - job: RunMavenPackage
+        displayName: Maven Package, test and publish artifact
+        pool:
+          vmImage: $(vmImageName)
+
+        steps:
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              mavenOptions: '-Xmx3072m'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.11'
+              jdkArchitectureOption: 'x64'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              goals: 'package'
+
+          - task: CopyFiles@2
+            displayName: Copy file to artifact directory
+            inputs:
+                SourceFolder: '$(System.DefaultWorkingDirectory)'
+                Contents: '**/target/*.?(war|jar)'
+                TargetFolder: $(Build.ArtifactStagingDirectory)
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'drop'
+
+  - stage: Deploy
+    displayName: deploy code to VM
+    jobs:
+      - deployment: VMDeploy
+        displayName: web deploy
+        environment: 
+          name: azure-vm
+          resourceType: VirtualMachine
+          tags: web
+        strategy:
+            runOnce:
+              preDeploy:
+                steps:
+                - download: current
+                  artifact: 'drop'
+                  patterns: '**/target/*.?(war|jar)'
+              deploy:
+                steps:
+                - task: Bash@3
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Modify deployment script based on the app type
+                      hostname
+                      echo "Starting deployment script run"
+                      sudo cp '$(Pipeline.Workspace)/drop/target/helloworld.war' '/opt/tomcat/webapps'
+                      sudo systemctl restart tomcat
+                      # sudo java -jar '$(Pipeline.Workspace)/drop/**/target/*.jar'

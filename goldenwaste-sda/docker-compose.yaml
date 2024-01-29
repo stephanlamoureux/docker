@@ -1,0 +1,44 @@
+version: '3'
+services:
+  app:
+    container_name: golden-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - GOLDEN_DB_URL=db
+      - GOLDEN_DB_PORT=3306
+      - GOLDEN_DB_NAME=goldenwaste
+      - GOLDEN_DB_USERNAME=root
+      - GOLDEN_DB_PASSWORD=DevOps2022
+    depends_on:
+      db:
+        condition: service_healthy # db takes time to spin up, without the healthcheck it might try to connect when the db isn't ready and exit.
+    networks:
+      - goldenwaste-network
+  db:
+    image: "mysql"
+    container_name: goldenwastedb
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=goldenwaste
+      - MYSQL_ROOT_PASSWORD=DevOps2022
+    healthcheck:
+      test: ["CMD","mysqladmin","ping"]
+      timeout: 20s
+      retries: 10
+    volumes:
+      - goldenwaste-mysql:/var/lib/mysql
+      - goldenwaste-mysql-config:/etc/mysql
+    networks:
+      - goldenwaste-network
+volumes:
+  goldenwaste-mysql:
+  goldenwaste-mysql-config:
+networks:
+  goldenwaste-network:
+    name: goldenwaste-network
+    driver: bridge

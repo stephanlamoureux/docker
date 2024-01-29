@@ -1,0 +1,17 @@
+FROM node:14 as builder
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+FROM node:14-alpine
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app .
+EXPOSE 3000
+CMD [ "npm", "start" ]
+
+# docker build -t node_multi -f Dockerfile-multi .
+
+# docker run -itd --rm --name clicky_multi -p 3000:3000 node_multi
+
+# 1.14gb -> 263mb

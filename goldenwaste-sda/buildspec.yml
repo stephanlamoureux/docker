@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+  pre_build:
+    commands:
+    - mvn clean
+    - mvn validate
+    - echo Pre-build completed on 'data'
+  build:
+    commands:
+    - echo Build completed on date
+    - mvn compile
+    - mvn test
+  post_build:
+    commands:
+    - echo Build completed on date
+    - mvn package
+    - cp target/*.war ROOT.war
+artifacts:
+  files:
+  - ROOT.war

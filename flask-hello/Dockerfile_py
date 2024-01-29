@@ -1,0 +1,14 @@
+FROM python:3-alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install flask
+
+CMD python ./devops_dockerfile_flask.py
+
+EXPOSE 80
+
+# buid command:
+# docker build -t "flask_python:1.0" -f Dockerfile_py .

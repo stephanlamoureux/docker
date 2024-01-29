@@ -1,0 +1,24 @@
+version: '3'
+services:
+  web:
+    image: wordpress:latest
+    ports:
+      - 8080:80
+    environment:
+      - DB_host=database
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wpuser
+      - MYSQL_PASSWORD=password123
+    depends_on:
+      - database
+  database:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=password321
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wpuser
+      - MYSQL_PASSWORD=password123
+    volumes:
+      - wp_data:/var/lib/mysql
+volumes:
+  wp_data:
