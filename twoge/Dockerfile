@@ -1,8 +1,9 @@
 FROM python:alpine
-ENV SQLALCHEMY_DATABASE_URI = 'postgresql://admin:dfsl324Sk0A@localhost:5432/mydatabase'
+ENV SQLALCHEMY_DATABASE_URI="postgresql://twoge:twoge@postgres-db:5432/twoge"
 
 RUN apk update && \
     apk add --no-cache build-base libffi-dev openssl-dev
+
 COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt

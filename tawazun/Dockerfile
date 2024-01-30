@@ -15,3 +15,4 @@ RUN mvn package
 EXPOSE 8080
 
 ENTRYPOINT [ "java","-jar","target/tawazun.war" ]
+
