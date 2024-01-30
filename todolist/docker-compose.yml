@@ -23,7 +23,7 @@ services:
       - MYSQL_DATABASE_USER=todo
       - MYSQL_DATABASE_PASSWORD=todo
       - MYSQL_DATABASE_DB=todo_db
-      - MYSQL_DATABASE_PORT=3307
+      - MYSQL_DATABASE_PORT=3306
     networks:
       - todo-networks
     depends_on:
@@ -33,7 +33,7 @@ services:
     image: "mysql"
     container_name: "todo_db"
     ports:
-      - "3307:3307"
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=todo
       - MYSQL_DATABASE=todo_db

@@ -4,11 +4,11 @@ FROM python:3.9 as build
 WORKDIR /app
 
 # Set environment variables
-ENV MYSQL_DATABASE_HOST="todo_react" \
+ENV MYSQL_DATABASE_HOST="db" \
     MYSQL_DATABASE_USER="todo" \
     MYSQL_DATABASE_PASSWORD="todo" \
     MYSQL_DATABASE_DB="todo_db" \
-    MYSQL_DATABASE_PORT="3307"
+    MYSQL_DATABASE_PORT="3306"
 
 # Copy only the necessary files for dependency installation
 COPY requirements.txt .
