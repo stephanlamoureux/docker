@@ -1,21 +1,18 @@
-FROM python:alpine
-
-ENV MYSQL_DATABASE_HOST=todo-database-server
-ENV MYSQL_DATABASE_USER=chandra
-ENV MYSQL_DATABASE_PASSWORD=Chandra@123
-ENV MYSQL_DATABASE_DB=todo_db
-ENV MYSQL_DATABASE_PORT=3306
-
-RUN apk update && \
-    apk add --no-cache build-base libffi-dev openssl-dev
-COPY . /app
+FROM node:alpine as build
 WORKDIR /app
-RUN pip install -r requirements.txt
-EXPOSE 80
-CMD python ./todo.py
+COPY package*.json .
+RUN npm install
+COPY . .
+RUN npm run build
 
-# Build image
-# docker build -t todolist-flask .
+FROM nginx as product
+WORKDIR /usr/share/nginx/html
+COPY --from=build /app/build .
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build Image
+# docker build -t todolist-react .
 
 # Create network
 # docker network create todo
@@ -27,4 +24,4 @@ CMD python ./todo.py
 # docker run --rm -itd --network todo --name todo-flask-server -p 80:80 -e MYSQL_DATABASE_HOST=todo-database-server -e MYSQL_DATABASE_USER=chandra -e MYSQL_DATABASE_PASSWORD=Chandra@123 -e MYSQL_DATABASE_DB=todo_db -e MYSQL_DATABASE_PORT=3306 todolist-flask
 
 # Create the frontend
-# docker run -itd --name todo-frontend -p 8080:80 -v $(pwd)/html:/usr/share/nginx/html nginx
+# docker run -itd --network todo --name todo-react-frontend -p 3000:3000 todolist-react

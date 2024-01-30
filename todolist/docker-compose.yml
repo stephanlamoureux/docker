@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  frontend:
+    container_name: "frontend"
+    build: todolist-react-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:80
+    networks:
+      - todo-networks
+    depends_on:
+      - backend
+
+  backend:
+    container_name: "backend"
+    build: todolist-flask-backend
+    ports:
+      - "80:80"
+    environment:
+      - MYSQL_DATABASE_HOST=db
+      - MYSQL_DATABASE_USER=todo
+      - MYSQL_DATABASE_PASSWORD=todo
+      - MYSQL_DATABASE_DB=todo_db
+      - MYSQL_DATABASE_PORT=3306
+    networks:
+      - todo-networks
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: "mysql"
+    container_name: "todo_db"
+    ports:
+      - "3307:3307"
+    environment:
+      - MYSQL_ROOT_PASSWORD=todo
+      - MYSQL_DATABASE=todo_db
+      - MYSQL_USER=todo
+      - MYSQL_PASSWORD=todo
+    networks:
+      - todo-networks
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      timeout: 20s
+      retries: 10
+
+networks:
+  todo-networks:
+    name: todo-networks
+    driver: bridge
