@@ -1,0 +1,47 @@
+version: '3'
+services:
+  app:
+    container_name: "SDAWritter_app"
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SQL_DATABASE=SDAWritter
+      - SQL_USER=admin
+      - SQL_PASSWORD=edwin2023
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - DJANGO_ALLOWED_HOSTS=localhost
+      - SECRET_KEY=SDAWritter@2023
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - SDAWritter-networks
+  db:
+    container_name: "SDAWritter-db"
+    image: "postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=SDAWritter
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=edwin2023
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "SDAWritter", "-U", "admin"]
+      timeout: 20s
+      retries: 10
+
+    networks:
+      - SDAWritter-networks
+    volumes:
+      - SDAWritter-postgres:/var/lib/postgresql/data
+      - SDAWritter-postgres-config:/etc/postgresql
+volumes:
+  SDAWritter-postgres:
+  SDAWritter-postgres-config:
+
+networks:
+  SDAWritter-networks:
+    name: SDAWritter-networks
+    driver: bridge
