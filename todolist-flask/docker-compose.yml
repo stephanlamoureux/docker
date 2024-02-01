@@ -8,20 +8,18 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./static:/usr/share/nginx/html
+      - ./start-nginx.sh:/startup-nginx.sh
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
+    command: ["/startup-nginx.sh"]  # Override the default command
+    networks:
+      - todo-networks
 
   backend:
     container_name: "todolist-flask-backend"
     build: .
     networks:
       - todo-networks
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     depends_on:
       db:
         condition: service_healthy
